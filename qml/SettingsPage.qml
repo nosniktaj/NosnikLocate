@@ -128,7 +128,7 @@ Page {
                                 Layout.fillWidth: true
                             }
                             Text {
-                                text: intervalSlider.value.toFixed(0) + "s"
+                                text: (intervalSlider.value / 1000).toFixed(0) + "s"
                                 font.pixelSize: 13
                                 color: "#BB86FC"
                             }
@@ -137,9 +137,9 @@ Page {
                         Slider {
                             id: intervalSlider
                             Layout.fillWidth: true
-                            from: 10
-                            to: 300
-                            stepSize: 10
+                            from: 10000
+                            to: 300000
+                            stepSize: 10000
                             value: SettingsManager.updateInterval
                             Material.accent: "#BB86FC"
                             onMoved: {
