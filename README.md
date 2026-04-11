@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-LGPLv3-blue.svg" alt="License: LGPL v3"/></a>
   <img src="https://img.shields.io/badge/Qt-6-green.svg" alt="Qt 6"/>
   <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="C++17"/>
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop-lightgrey.svg" alt="Platform"/>
@@ -44,7 +44,7 @@ NosnikLocate is a **free and open-source** mobile application that lets you shar
 
 | Layer | Technology | License |
 |-------|-----------|---------|
-| **Mobile App** | Qt 6, C++17, QML | GPLv3 |
+| **Mobile App** | Qt 6, C++17, QML | LGPLv3 |
 | **Maps** | OpenStreetMap / Mapbox GL | ODbL |
 | **API Server** | Node.js, Express | MIT |
 | **Database** | PostgreSQL 15+ | PostgreSQL License |
@@ -170,7 +170,7 @@ For bug reports and feature requests, please [open an issue](https://github.com/
 
 ## License
 
-NosnikLocate is licensed under the **GNU General Public License v3.0**.
+NosnikLocate is licensed under the **GNU Lesser General Public License v3.0**.
 
 See [LICENSE](LICENSE) for the full license text.
 
@@ -179,7 +179,7 @@ NosnikLocate - A privacy-focused location sharing application
 Copyright (C) 2024 Nosniktaj
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
+it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 ```
