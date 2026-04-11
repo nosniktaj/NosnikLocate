@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Purple gradient for the pin -->
+    <linearGradient id="pinGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#BB86FC"/>
+      <stop offset="100%" stop-color="#9C27B0"/>
+    </linearGradient>
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="0 0 0 0 0.612
+                0 0 0 0 0.153
+                0 0 0 0 0.690
+                0 0 0 0.6 0" result="glowColor"/>
+      <feMerge>
+        <feMergeNode in="glowColor"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Shadow for the icon background -->
+    <filter id="bgShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- App icon background with rounded corners -->
+  <rect x="16" y="16" width="480" height="480" rx="96" ry="96" fill="#1A1A2E" filter="url(#bgShadow)"/>
+
+  <!-- Subtle radial background highlight -->
+  <radialGradient id="bgHighlight" cx="50%" cy="40%" r="50%">
+    <stop offset="0%" stop-color="#2A2A4E" stop-opacity="1"/>
+    <stop offset="100%" stop-color="#1A1A2E" stop-opacity="1"/>
+  </radialGradient>
+  <rect x="16" y="16" width="480" height="480" rx="96" ry="96" fill="url(#bgHighlight)"/>
+
+  <!-- Location pin with glow -->
+  <g filter="url(#glow)">
+    <!-- Pin body -->
+    <path d="M256 72c-66.274 0-120 53.726-120 120 0 90 120 228 120 228s120-138 120-228c0-66.274-53.726-120-120-120z"
+          fill="url(#pinGradient)"/>
+    <!-- Inner circle of the pin -->
+    <circle cx="256" cy="192" r="56" fill="#1A1A2E"/>
+    <!-- Letter N inside the pin -->
+    <text x="256" y="208" font-family="Arial, Helvetica, sans-serif" font-weight="bold"
+          font-size="64" fill="url(#pinGradient)" text-anchor="middle" dominant-baseline="middle">N</text>
+  </g>
+</svg>

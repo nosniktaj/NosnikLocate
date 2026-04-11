@@ -1,0 +1,135 @@
+# ====================
+# Build directories
+# ====================
+build/
+cmake-build-*/
+out/
+release/
+debug/
+*.build/
+
+# ====================
+# CMake
+# ====================
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CMakeUserPresets.json
+
+# ====================
+# Qt Creator
+# ====================
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.autosave
+*.qmlc
+*.jsc
+
+# ====================
+# Compiled files
+# ====================
+*.o
+*.obj
+*.so
+*.so.*
+*.dylib
+*.dll
+*.a
+*.lib
+*.exe
+*.out
+*.app
+
+# ====================
+# IDE files
+# ====================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.cproject
+.settings/
+*.creator
+*.creator.*
+*.files
+*.includes
+*.config
+
+# ====================
+# Android build
+# ====================
+android/build/
+android/.gradle/
+android/local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# ====================
+# iOS build
+# ====================
+*.ipa
+*.xcworkspace/
+*.xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/
+DerivedData/
+Pods/
+
+# ====================
+# Node.js (server)
+# ====================
+server/node_modules/
+server/.env
+server/dist/
+server/coverage/
+server/*.log
+
+# ====================
+# Environment files
+# ====================
+.env
+.env.local
+.env.*.local
+
+# ====================
+# OS files
+# ====================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ====================
+# Logs
+# ====================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ====================
+# Miscellaneous
+# ====================
+*.pem
+*.key
+*.cert
+compile_commands.json
+.cache/
+.ccache/
