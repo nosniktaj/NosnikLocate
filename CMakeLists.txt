@@ -40,6 +40,19 @@ set(CPP_HEADERS
 
 set(QML_FILES
     qml/Main.qml
+    qml/LoginPage.qml
+    qml/RegisterPage.qml
+    qml/MapPage.qml
+    qml/FriendsPage.qml
+    qml/NotificationsPage.qml
+    qml/SettingsPage.qml
+    qml/components/NosnikButton.qml
+    qml/components/NosnikTextField.qml
+    qml/components/AvatarCircle.qml
+    qml/components/FriendCard.qml
+    qml/components/FriendRequestCard.qml
+    qml/components/AddFriendDialog.qml
+    qml/components/MapFriendMarker.qml
 )
 
 qt_add_executable(NosnikLocate
