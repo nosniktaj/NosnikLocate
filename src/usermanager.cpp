@@ -77,15 +77,7 @@ void UserManager::registerUser(const QString &username, const QString &email,
 void UserManager::logout()
 {
     clearUserData();
-
-    QSettings settings;
-    settings.remove("auth/token");
-    settings.remove("auth/userId");
-    settings.remove("auth/username");
-    settings.remove("auth/displayName");
-    settings.remove("auth/email");
-    settings.remove("auth/avatarUrl");
-    settings.sync();
+    clearStoredSession();
 }
 
 void UserManager::updateProfile(const QString &displayName, const QString &avatarUrl)
@@ -226,18 +218,21 @@ void UserManager::onAccountDeleteResponse(bool success, const QString &message)
 {
     if (success) {
         clearUserData();
-
-        QSettings settings;
-        settings.remove("auth/token");
-        settings.remove("auth/userId");
-        settings.remove("auth/username");
-        settings.remove("auth/displayName");
-        settings.remove("auth/email");
-        settings.remove("auth/avatarUrl");
-        settings.sync();
-
+        clearStoredSession();
         emit accountDeleted();
     } else {
         emit accountDeleteFailed(message);
     }
+}
+
+void UserManager::clearStoredSession()
+{
+    QSettings settings;
+    settings.remove("auth/token");
+    settings.remove("auth/userId");
+    settings.remove("auth/username");
+    settings.remove("auth/displayName");
+    settings.remove("auth/email");
+    settings.remove("auth/avatarUrl");
+    settings.sync();
 }

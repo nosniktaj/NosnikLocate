@@ -8,6 +8,7 @@
 #ifdef Q_OS_ANDROID
 #include <QCoreApplication>
 #include <QJniObject>
+#include <QJniEnvironment>
 #endif
 
 LocationManager *LocationManager::s_instance = nullptr;
@@ -126,25 +127,36 @@ void LocationManager::updateLocation()
 void LocationManager::requestPermissions()
 {
 #ifdef Q_OS_ANDROID
+    const QStringList permissions = {
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+    };
+
+    QJniEnvironment env;
+    jobjectArray permArray = env->NewObjectArray(
+        permissions.size(),
+        env->FindClass("java/lang/String"),
+        nullptr);
+
+    for (int i = 0; i < permissions.size(); ++i) {
+        env->SetObjectArrayElement(permArray, i,
+            QJniObject::fromString(permissions[i]).object<jstring>());
+    }
+
     QJniObject activity = QJniObject::callStaticObjectMethod(
         "org/qtproject/qt/android/QtNative",
         "activity",
         "()Landroid/app/Activity;");
 
     if (activity.isValid()) {
-        QJniObject permissions = QJniObject::fromString("android.permission.ACCESS_FINE_LOCATION");
-        QJniObject permArray = QJniObject::callStaticObjectMethod(
-            "java/lang/reflect/Array",
-            "newInstance",
-            "(Ljava/lang/Class;I)Ljava/lang/Object;",
-            QJniObject::callStaticObjectMethod("java/lang/String", "class").object<jobject>(),
-            1);
         activity.callMethod<void>(
             "requestPermissions",
             "([Ljava/lang/String;I)V",
-            permArray.object<jobjectArray>(),
+            permArray,
             1);
     }
+
+    env->DeleteLocalRef(permArray);
 #endif
     // On iOS, permissions are requested automatically by the system
     // when starting location updates

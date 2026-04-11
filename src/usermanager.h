@@ -64,6 +64,7 @@ private:
 
     void setAuthToken(const QString &token);
     void clearUserData();
+    void clearStoredSession();
     void loadStoredSession();
 
     bool m_isLoggedIn;
