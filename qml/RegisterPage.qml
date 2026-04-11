@@ -162,8 +162,8 @@ Page {
             return;
         }
 
-        if (pass.length < 6) {
-            registerPage.errorMessage = "Password must be at least 6 characters";
+        if (pass.length < 8) {
+            registerPage.errorMessage = "Password must be at least 8 characters";
             return;
         }
 

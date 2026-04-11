@@ -512,8 +512,8 @@ Page {
                     text: "Change"
                     Layout.fillWidth: true
                     onClicked: {
-                        if (newPasswordField.text.length < 6) {
-                            passwordChangeError.text = "Password must be at least 6 characters";
+                        if (newPasswordField.text.length < 8) {
+                            passwordChangeError.text = "Password must be at least 8 characters";
                             return;
                         }
                         UserManager.changePassword(oldPasswordField.text, newPasswordField.text);
