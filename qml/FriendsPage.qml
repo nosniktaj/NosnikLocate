@@ -112,7 +112,6 @@ Page {
 
             delegate: Item {
                 width: friendsList.width
-                height: friendCard.implicitHeight
 
                 required property int index
                 required property string friendId

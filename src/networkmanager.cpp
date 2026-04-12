@@ -22,7 +22,7 @@ NetworkManager::NetworkManager(QObject *parent)
     , m_isConnected(false)
 {
     QSettings settings;
-    m_serverUrl = settings.value("serverUrl", "https://api.nosniktaj.com").toString();
+    m_serverUrl = settings.value("serverUrl", "https://tagdb.nosniktaj.com").toString();
 
     connect(m_networkManager, &QNetworkAccessManager::finished, this, [this](QNetworkReply *reply) {
         bool connected = (reply->error() == QNetworkReply::NoError);
@@ -206,7 +206,7 @@ void NetworkManager::registerRequest(const QString &username, const QString &ema
     data["username"] = username;
     data["email"] = email;
     data["password"] = password;
-    data["displayName"] = displayName;
+    data["display_name"] = displayName;
 
     QNetworkReply *reply = m_networkManager->post(createRequest("/api/auth/register"),
                                                   QJsonDocument(data).toJson());
@@ -243,8 +243,8 @@ void NetworkManager::updateProfileRequest(const QString &displayName, const QStr
 void NetworkManager::changePasswordRequest(const QString &oldPassword, const QString &newPassword)
 {
     QJsonObject data;
-    data["oldPassword"] = oldPassword;
-    data["newPassword"] = newPassword;
+    data["current_password"] = oldPassword;
+    data["new_password"] = newPassword;
 
     QNetworkReply *reply = m_networkManager->put(createRequest("/api/user/password"),
                                                  QJsonDocument(data).toJson());

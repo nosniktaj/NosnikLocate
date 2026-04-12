@@ -65,6 +65,7 @@ QString UserManager::authToken() const
 
 void UserManager::login(const QString &username, const QString &password)
 {
+
     NetworkManager::instance()->loginRequest(username, password);
 }
 

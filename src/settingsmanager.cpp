@@ -14,7 +14,7 @@ SettingsManager *SettingsManager::instance()
 
 SettingsManager::SettingsManager(QObject *parent)
     : QObject(parent)
-    , m_serverUrl("https://api.nosniktaj.com")
+    , m_serverUrl("https://tagdb.nosniktaj.com")
     , m_updateInterval(30000)
     , m_shareLocation(true)
     , m_showNotifications(true)
@@ -113,7 +113,7 @@ void SettingsManager::load()
     QSettings settings;
     settings.beginGroup("Settings");
 
-    m_serverUrl = settings.value("serverUrl", "https://api.nosniktaj.com").toString();
+    m_serverUrl = settings.value("serverUrl", "https://tagdb.nosniktaj.com").toString();
     m_updateInterval = settings.value("updateInterval", 30000).toInt();
     m_shareLocation = settings.value("shareLocation", true).toBool();
     m_showNotifications = settings.value("showNotifications", true).toBool();
@@ -143,7 +143,7 @@ void SettingsManager::save()
 
 void SettingsManager::resetToDefaults()
 {
-    setServerUrl("https://api.nosniktaj.com");
+    setServerUrl("https://tagdb.nosniktaj.com");
     setUpdateInterval(30000);
     setShareLocation(true);
     setShowNotifications(true);
