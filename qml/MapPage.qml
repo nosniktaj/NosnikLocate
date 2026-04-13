@@ -271,7 +271,7 @@ Page {
         Behavior on scale { NumberAnimation { duration: 100 } }
     }
 
-    // Friend info popup
+    // Friend info popup — margin is small since this page sits above the tab bar
     Rectangle {
         id: friendPopup
         visible: mapPage.showFriendPopup && mapPage.selectedFriend !== null
