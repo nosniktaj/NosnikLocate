@@ -265,7 +265,7 @@ Page {
                 SectionHeader { text: "Account" }
 
                 SettingsItem {
-                    height: 48
+                    Layout.preferredHeight: 48
                     MouseArea {
                         anchors.fill: parent
                         onClicked: changePasswordDialog.open()
@@ -290,7 +290,7 @@ Page {
                 }
 
                 SettingsItem {
-                    height: 48
+                    Layout.preferredHeight: 48
                     MouseArea {
                         anchors.fill: parent
                         onClicked: deleteAccountDialog.open()
@@ -334,7 +334,7 @@ Page {
                 SectionHeader { text: "About" }
 
                 SettingsItem {
-                    height: aboutColumn.height + 32
+                    Layout.preferredHeight: aboutColumn.height + 32
 
                     ColumnLayout {
                         id: aboutColumn

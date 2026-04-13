@@ -170,13 +170,13 @@ void NetworkManager::sendLocationUpdate(double latitude, double longitude, doubl
 
 void NetworkManager::fetchFriendLocations()
 {
-    QNetworkReply *reply = m_networkManager->get(createRequest("/api/friends/locations"));
+    QNetworkReply *reply = m_networkManager->get(createRequest("/api/location/friends"));
     handleReply(reply,
         [this](const QJsonDocument &doc) {
-            emit friendLocationsReceived(doc.array());
+            emit friendLocationsReceived(doc.object()["friends"].toArray());
         },
         [this](const QString &error) {
-            emit requestError("/api/friends/locations", error);
+            emit requestError("/api/location/friends", error);
         });
 }
 
@@ -188,15 +188,18 @@ void NetworkManager::loginRequest(const QString &username, const QString &passwo
 
     QNetworkReply *reply = m_networkManager->post(createRequest("/api/auth/login"),
                                                   QJsonDocument(data).toJson());
-    handleReply(reply,
-        [this](const QJsonDocument &doc) {
-            emit loginResponse(true, doc.object());
-        },
-        [this](const QString &error) {
-            QJsonObject errObj;
-            errObj["message"] = error;
-            emit loginResponse(false, errObj);
-        });
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        QByteArray body = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(body);
+        QJsonObject obj = doc.object();
+
+        if (reply->error() == QNetworkReply::NoError) {
+            emit loginResponse(true, obj);
+        } else {
+            emit loginResponse(false, obj);
+        }
+    });
 }
 
 void NetworkManager::registerRequest(const QString &username, const QString &email,
@@ -210,15 +213,18 @@ void NetworkManager::registerRequest(const QString &username, const QString &ema
 
     QNetworkReply *reply = m_networkManager->post(createRequest("/api/auth/register"),
                                                   QJsonDocument(data).toJson());
-    handleReply(reply,
-        [this](const QJsonDocument &doc) {
-            emit registerResponse(true, doc.object());
-        },
-        [this](const QString &error) {
-            QJsonObject errObj;
-            errObj["message"] = error;
-            emit registerResponse(false, errObj);
-        });
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        QByteArray body = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(body);
+        QJsonObject obj = doc.object();
+
+        if (reply->error() == QNetworkReply::NoError) {
+            emit registerResponse(true, obj);
+        } else {
+            emit registerResponse(false, obj);
+        }
+    });
 }
 
 void NetworkManager::updateProfileRequest(const QString &displayName, const QString &avatarUrl)
@@ -276,10 +282,22 @@ void NetworkManager::fetchFriends()
     QNetworkReply *reply = m_networkManager->get(createRequest("/api/friends"));
     handleReply(reply,
         [this](const QJsonDocument &doc) {
-            emit friendsListReceived(doc.array());
+            emit friendsListReceived(doc.object()["friends"].toArray());
         },
         [this](const QString &error) {
             emit requestError("/api/friends", error);
+        });
+}
+
+void NetworkManager::fetchPendingRequests()
+{
+    QNetworkReply *reply = m_networkManager->get(createRequest("/api/friends/requests/pending"));
+    handleReply(reply,
+        [this](const QJsonDocument &doc) {
+            emit pendingRequestsReceived(doc.object()["requests"].toArray());
+        },
+        [this](const QString &error) {
+            emit requestError("/api/friends/requests/pending", error);
         });
 }
 
@@ -288,7 +306,7 @@ void NetworkManager::addFriendRequest(const QString &username)
     QJsonObject data;
     data["username"] = username;
 
-    QNetworkReply *reply = m_networkManager->post(createRequest("/api/friends/add"),
+    QNetworkReply *reply = m_networkManager->post(createRequest("/api/friends/request"),
                                                   QJsonDocument(data).toJson());
     handleReply(reply,
         [this](const QJsonDocument &doc) {
@@ -316,11 +334,9 @@ void NetworkManager::removeFriendRequest(const QString &friendId)
 
 void NetworkManager::acceptFriendRequest(const QString &requestId)
 {
-    QJsonObject data;
-    data["requestId"] = requestId;
-
-    QNetworkReply *reply = m_networkManager->post(createRequest("/api/friends/accept"),
-                                                  QJsonDocument(data).toJson());
+    QNetworkReply *reply = m_networkManager->put(
+        createRequest("/api/friends/request/" + requestId + "/accept"),
+        QByteArray());
     handleReply(reply,
         [this](const QJsonDocument &doc) {
             QString msg = doc.object()["message"].toString("Friend request accepted");
@@ -333,11 +349,9 @@ void NetworkManager::acceptFriendRequest(const QString &requestId)
 
 void NetworkManager::rejectFriendRequest(const QString &requestId)
 {
-    QJsonObject data;
-    data["requestId"] = requestId;
-
-    QNetworkReply *reply = m_networkManager->post(createRequest("/api/friends/reject"),
-                                                  QJsonDocument(data).toJson());
+    QNetworkReply *reply = m_networkManager->put(
+        createRequest("/api/friends/request/" + requestId + "/reject"),
+        QByteArray());
     handleReply(reply,
         [this](const QJsonDocument &doc) {
             QString msg = doc.object()["message"].toString("Friend request rejected");

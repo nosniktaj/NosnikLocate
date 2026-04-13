@@ -279,7 +279,7 @@ Page {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: 16
-        anchors.bottomMargin: 80
+        anchors.bottomMargin: 16
         height: 100
         radius: 16
         color: "#16213E"

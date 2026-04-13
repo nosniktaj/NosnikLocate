@@ -14,6 +14,12 @@ SettingsManager *SettingsManager::instance()
 
 SettingsManager::SettingsManager(QObject *parent)
     : QObject(parent)
+    // ------------------------------------------------------------------
+    // Server URL: Change this default to point to your own server instance.
+    // This is intentionally NOT exposed in the Settings UI. Developers
+    // should update this value (and the fallback in load() / resetToDefaults())
+    // when forking/branching the project.
+    // ------------------------------------------------------------------
     , m_serverUrl("https://tagdb.nosniktaj.com")
     , m_updateInterval(30000)
     , m_shareLocation(true)

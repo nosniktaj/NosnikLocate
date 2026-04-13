@@ -111,6 +111,7 @@ FriendManager::FriendManager(QObject *parent)
 {
     auto *net = NetworkManager::instance();
     connect(net, &NetworkManager::friendsListReceived, this, &FriendManager::onFriendsListReceived);
+    connect(net, &NetworkManager::pendingRequestsReceived, this, &FriendManager::onPendingRequestsReceived);
     connect(net, &NetworkManager::friendLocationsReceived, this, &FriendManager::onFriendLocationsReceived);
     connect(net, &NetworkManager::friendAddResponse, this, &FriendManager::onFriendAddResponse);
     connect(net, &NetworkManager::friendRemoveResponse, this, &FriendManager::onFriendRemoveResponse);
@@ -135,6 +136,7 @@ int FriendManager::pendingRequestCount() const
 void FriendManager::loadFriends()
 {
     NetworkManager::instance()->fetchFriends();
+    NetworkManager::instance()->fetchPendingRequests();
 }
 
 void FriendManager::addFriend(const QString &username)
@@ -171,36 +173,35 @@ void FriendManager::refreshLocations()
 void FriendManager::onFriendsListReceived(const QJsonArray &friends)
 {
     QVector<Friend> friendList;
-    QVector<PendingRequest> pendingList;
 
     for (const QJsonValue &val : friends) {
         QJsonObject obj = val.toObject();
-        QString status = obj["status"].toString();
-
-        if (status == "pending") {
-            PendingRequest req;
-            req.requestId = obj["requestId"].toString();
-            req.username = obj["username"].toString();
-            req.displayName = obj["displayName"].toString();
-            req.avatarUrl = obj["avatarUrl"].toString();
-            req.createdAt = QDateTime::fromString(obj["createdAt"].toString(), Qt::ISODate);
-            pendingList.append(req);
-        } else {
-            Friend f;
-            f.id = obj["id"].toString();
-            f.username = obj["username"].toString();
-            f.displayName = obj["displayName"].toString();
-            f.avatarUrl = obj["avatarUrl"].toString();
-            f.latitude = obj["latitude"].toDouble();
-            f.longitude = obj["longitude"].toDouble();
-            f.lastSeen = QDateTime::fromString(obj["lastSeen"].toString(), Qt::ISODate);
-            f.isOnline = obj["isOnline"].toBool();
-            f.distance = obj["distance"].toDouble();
-            friendList.append(f);
-        }
+        Friend f;
+        f.id = obj["friend_id"].toString();
+        f.username = obj["username"].toString();
+        f.displayName = obj["display_name"].toString();
+        f.avatarUrl = obj["avatar_url"].toString();
+        friendList.append(f);
     }
 
     m_friendModel->setFriends(friendList);
+}
+
+void FriendManager::onPendingRequestsReceived(const QJsonArray &requests)
+{
+    QVector<PendingRequest> pendingList;
+
+    for (const QJsonValue &val : requests) {
+        QJsonObject obj = val.toObject();
+        PendingRequest req;
+        req.requestId = obj["id"].toString();
+        req.username = obj["username"].toString();
+        req.displayName = obj["display_name"].toString();
+        req.avatarUrl = obj["avatar_url"].toString();
+        req.createdAt = QDateTime::fromString(obj["created_at"].toString(), Qt::ISODate);
+        pendingList.append(req);
+    }
+
     m_pendingRequestModel->setRequests(pendingList);
 
     int newCount = pendingList.count();
@@ -214,13 +215,21 @@ void FriendManager::onFriendLocationsReceived(const QJsonArray &locations)
 {
     for (const QJsonValue &val : locations) {
         QJsonObject obj = val.toObject();
-        QString friendId = obj["friendId"].toString();
+        QString friendId = obj["id"].toString();
         double lat = obj["latitude"].toDouble();
         double lng = obj["longitude"].toDouble();
-        bool online = obj["isOnline"].toBool();
-        double dist = obj["distance"].toDouble();
+        QString timestamp = obj["timestamp"].toString();
 
-        m_friendModel->updateFriendLocation(friendId, lat, lng, online, dist);
+        // Determine online status: consider online if location was updated in the last 5 minutes
+        bool online = false;
+        if (!timestamp.isEmpty()) {
+            QDateTime lastUpdate = QDateTime::fromString(timestamp, Qt::ISODate);
+            if (lastUpdate.isValid()) {
+                online = lastUpdate.secsTo(QDateTime::currentDateTimeUtc()) < 300;
+            }
+        }
+
+        m_friendModel->updateFriendLocation(friendId, lat, lng, online, 0.0);
     }
 }
 

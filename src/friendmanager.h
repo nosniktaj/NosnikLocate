@@ -79,6 +79,7 @@ signals:
 
 private slots:
     void onFriendsListReceived(const QJsonArray &friends);
+    void onPendingRequestsReceived(const QJsonArray &requests);
     void onFriendLocationsReceived(const QJsonArray &locations);
     void onFriendAddResponse(bool success, const QString &message);
     void onFriendRemoveResponse(bool success, const QString &message);

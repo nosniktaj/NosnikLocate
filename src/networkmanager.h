@@ -44,6 +44,7 @@ public:
     Q_INVOKABLE void deleteAccountRequest();
 
     Q_INVOKABLE void fetchFriends();
+    Q_INVOKABLE void fetchPendingRequests();
     Q_INVOKABLE void addFriendRequest(const QString &username);
     Q_INVOKABLE void removeFriendRequest(const QString &friendId);
     Q_INVOKABLE void acceptFriendRequest(const QString &requestId);
@@ -69,6 +70,7 @@ signals:
     void friendLocationsReceived(const QJsonArray &locations);
 
     void friendsListReceived(const QJsonArray &friends);
+    void pendingRequestsReceived(const QJsonArray &requests);
     void friendAddResponse(bool success, const QString &message);
     void friendRemoveResponse(bool success, const QString &message);
     void friendRequestResponse(bool success, const QString &message);
