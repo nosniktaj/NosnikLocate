@@ -82,10 +82,42 @@ target_include_directories(NosnikLocate PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Android-specific settings
 if(ANDROID)
+    # Detect host OS for OpenSSL path
+    if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+        set(OPENSSL_ROOT_DIR "C:/android_openssl" CACHE PATH "Path to android_openssl")
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+        set(OPENSSL_ROOT_DIR "$ENV{HOME}/android_openssl" CACHE PATH "Path to android_openssl")
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")  # macOS
+        set(OPENSSL_ROOT_DIR "$ENV{HOME}/android_openssl" CACHE PATH "Path to android_openssl")
+    endif()
+
+    if(CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
+        set(_SSL_ABI_DIR "${OPENSSL_ROOT_DIR}/ssl_3/x86_64")
+    elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
+        set(_SSL_ABI_DIR "${OPENSSL_ROOT_DIR}/ssl_3/arm64-v8a")
+    elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a")
+        set(_SSL_ABI_DIR "${OPENSSL_ROOT_DIR}/ssl_3/armeabi-v7a")
+    elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "x86")
+        set(_SSL_ABI_DIR "${OPENSSL_ROOT_DIR}/ssl_3/x86")
+    endif()
+
+    # Validate the path exists before using it
+    if(NOT EXISTS "${_SSL_ABI_DIR}/libssl_3.so")
+        message(WARNING "OpenSSL not found at ${_SSL_ABI_DIR}. "
+                        "Clone it with: git clone https://github.com/KDAB/android_openssl.git ${OPENSSL_ROOT_DIR}")
+    endif()
+
+    set(ANDROID_EXTRA_LIBS
+        "${_SSL_ABI_DIR}/libssl_3.so"
+        "${_SSL_ABI_DIR}/libcrypto_3.so"
+        CACHE INTERNAL ""
+    )
+
     set_target_properties(NosnikLocate PROPERTIES
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
         QT_ANDROID_TARGET_SDK_VERSION 34
         QT_ANDROID_MIN_SDK_VERSION 26
+        QT_ANDROID_EXTRA_LIBS "${ANDROID_EXTRA_LIBS}"
     )
 
     set(QT_ANDROID_PERMISSIONS

@@ -83,8 +83,9 @@ private:
     ~NetworkManager() override = default;
 
     QNetworkRequest createRequest(const QString &endpoint) const;
-    void handleReply(QNetworkReply *reply, std::function<void(const QJsonDocument &)> onSuccess,
-                     std::function<void(const QString &)> onError = nullptr);
+    void handleReply(QNetworkReply *reply,
+                     const std::function<void(const QJsonDocument &)> &onSuccess,
+                     const std::function<void(const QString &)> &onError);
 
     QNetworkAccessManager *m_networkManager;
     QString m_serverUrl;

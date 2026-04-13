@@ -86,10 +86,12 @@ Page {
                 placeholderText: "Username"
                 Layout.fillWidth: true
                 Layout.bottomMargin: 12
-                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
-                onAccepted: passwordField.forceActiveFocus()
+                inputMethodHints: Qt.ImhPreferLowercase | Qt.ImhNoPredictiveText
+                onAccepted: {
+                    passwordField.forceActiveFocus()
+                    Qt.inputMethod.show()
+                }
             }
-
             // Password field
             NosnikTextField {
                 id: passwordField

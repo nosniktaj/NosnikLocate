@@ -75,8 +75,8 @@ QNetworkRequest NetworkManager::createRequest(const QString &endpoint) const
 }
 
 void NetworkManager::handleReply(QNetworkReply *reply,
-                                 std::function<void(const QJsonDocument &)> onSuccess,
-                                 std::function<void(const QString &)> onError)
+                                 const std::function<void(const QJsonDocument &)> &onSuccess,
+                                 const std::function<void(const QString &)> &onError)
 {
     connect(reply, &QNetworkReply::finished, this, [this, reply, onSuccess, onError]() {
         reply->deleteLater();
