@@ -19,6 +19,7 @@ Page {
         anchors.fill: parent
         contentHeight: contentColumn.height + 80
         boundsBehavior: Flickable.StopAtBounds
+        clip: true
 
         ColumnLayout {
             id: contentColumn

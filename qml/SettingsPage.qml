@@ -45,6 +45,8 @@ Page {
                 SectionHeader { text: "Profile" }
 
                 SettingsItem {
+                    Layout.preferredHeight: 96
+
                     RowLayout {
                         anchors.fill: parent
                         anchors.margins: 16
@@ -53,16 +55,16 @@ Page {
                         AvatarCircle {
                             size: 52
                             imageUrl: UserManager.avatarUrl
-                            initials: UserManager.displayName.length > 0 ? UserManager.displayName.charAt(0) : "?"
+                            initials: UserManager.displayName.length > 0 ? UserManager.displayName.charAt(0) : (UserManager.username.length > 0 ? UserManager.username.charAt(0) : "?")
                             Layout.alignment: Qt.AlignVCenter
                         }
 
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 2
+                            spacing: 3
 
                             Text {
-                                text: UserManager.displayName
+                                text: UserManager.displayName.length > 0 ? UserManager.displayName : UserManager.username
                                 font.pixelSize: 16
                                 font.weight: Font.Medium
                                 color: "#FFFFFF"
@@ -70,15 +72,17 @@ Page {
                                 Layout.fillWidth: true
                             }
                             Text {
-                                text: "@" + UserManager.username
+                                text: UserManager.username.length > 0 ? "@" + UserManager.username : ""
                                 font.pixelSize: 13
                                 color: "#B0B0B0"
+                                visible: text !== ""
                                 Layout.fillWidth: true
                             }
                             Text {
                                 text: UserManager.email
                                 font.pixelSize: 12
                                 color: "#666688"
+                                visible: text !== ""
                                 Layout.fillWidth: true
                             }
                         }
@@ -111,7 +115,7 @@ Page {
                 }
 
                 SettingsItem {
-                    height: 72
+                    Layout.preferredHeight: 72
                     ColumnLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 16
@@ -180,38 +184,6 @@ Page {
 
                             onActivated: {
                                 SettingsManager.distanceUnit = currentText;
-                                SettingsManager.save();
-                            }
-                        }
-                    }
-                }
-
-                // ---- Server Section ----
-                SectionHeader { text: "Server" }
-
-                SettingsItem {
-                    height: 72
-                    ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 4
-
-                        Text {
-                            text: "Server URL"
-                            font.pixelSize: 13
-                            color: "#B0B0B0"
-                        }
-
-                        NosnikTextField {
-                            id: serverUrlField
-                            Layout.fillWidth: true
-                            text: SettingsManager.serverUrl
-                            placeholderText: "https://example.com"
-                            font.pixelSize: 13
-                            topPadding: 8
-                            bottomPadding: 8
-                            onEditingFinished: {
-                                SettingsManager.serverUrl = text;
                                 SettingsManager.save();
                             }
                         }

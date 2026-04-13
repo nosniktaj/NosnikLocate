@@ -152,11 +152,12 @@ void UserManager::loadStoredSession()
 void UserManager::onLoginResponse(bool success, const QJsonObject &data)
 {
     if (success) {
-        m_userId = data["userId"].toString();
-        m_username = data["username"].toString();
-        m_displayName = data["displayName"].toString();
-        m_email = data["email"].toString();
-        m_avatarUrl = data["avatarUrl"].toString();
+        QJsonObject user = data["user"].toObject();
+        m_userId = user["id"].toString();
+        m_username = user["username"].toString();
+        m_displayName = user["display_name"].toString();
+        m_email = user["email"].toString();
+        m_avatarUrl = user["avatar_url"].toString();
         m_isLoggedIn = true;
 
         setAuthToken(data["token"].toString());
@@ -173,7 +174,9 @@ void UserManager::onLoginResponse(bool success, const QJsonObject &data)
         emit userDataChanged();
         emit loginSuccess();
     } else {
-        QString reason = data["message"].toString("Login failed");
+        QString reason = data["message"].toString();
+        if (reason.isEmpty())
+            reason = data["error"].toString("Login failed");
         emit loginFailed(reason);
     }
 }
@@ -183,7 +186,9 @@ void UserManager::onRegisterResponse(bool success, const QJsonObject &data)
     if (success) {
         emit registrationSuccess();
     } else {
-        QString reason = data["message"].toString("Registration failed");
+        QString reason = data["message"].toString();
+        if (reason.isEmpty())
+            reason = data["error"].toString("Registration failed");
         emit registrationFailed(reason);
     }
 }
@@ -191,14 +196,18 @@ void UserManager::onRegisterResponse(bool success, const QJsonObject &data)
 void UserManager::onProfileUpdateResponse(bool success, const QJsonObject &data)
 {
     if (success) {
-        if (data.contains("displayName"))
-            m_displayName = data["displayName"].toString();
-        if (data.contains("avatarUrl"))
-            m_avatarUrl = data["avatarUrl"].toString();
+        QJsonObject user = data.contains("user") ? data["user"].toObject() : data;
+        if (user.contains("display_name"))
+            m_displayName = user["display_name"].toString();
+        if (user.contains("avatar_url"))
+            m_avatarUrl = user["avatar_url"].toString();
+        if (user.contains("email"))
+            m_email = user["email"].toString();
 
         QSettings settings;
         settings.setValue("auth/displayName", m_displayName);
         settings.setValue("auth/avatarUrl", m_avatarUrl);
+        settings.setValue("auth/email", m_email);
         settings.sync();
 
         emit userDataChanged();

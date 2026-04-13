@@ -19,6 +19,7 @@ Page {
         id: osmPlugin
         name: "osm"
 
+        PluginParameter { name: "osm.useragent"; value: "NosnikLocate/1.0 (https://github.com/nosniktaj/NosnikLocate)" }
         PluginParameter { name: "osm.mapping.custom.host"; value: "https://tile.openstreetmap.org/" }
         PluginParameter { name: "osm.mapping.highdpi_tiles"; value: true }
     }
