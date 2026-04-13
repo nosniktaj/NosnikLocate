@@ -114,6 +114,8 @@ cmake --build build --parallel
 
 ### Building for Android
 
+Please note you must install **android_openssl** to either your home directory (subdir android_openssl) on Unix based systems or to C:/android_openssl on Windows
+
 Open the project in **Qt Creator**, select an Android kit, and build. Alternatively:
 
 ```bash
