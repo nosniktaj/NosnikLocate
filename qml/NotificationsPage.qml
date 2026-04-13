@@ -96,15 +96,12 @@ Page {
 
             delegate: FriendRequestCard {
                 width: requestsList.width
-
-                required property int index
-                required property string requestId
-                required property string displayName
-                required property string username
-                required property string avatarUrl
-
-                onAccepted: FriendManager.acceptRequest(requestId)
-                onRejected: FriendManager.rejectRequest(requestId)
+                requestId: model.requestId
+                displayName: model.displayName
+                username: model.username
+                avatarUrl: model.avatarUrl
+                onAccepted: FriendManager.acceptRequest(model.requestId)
+                onRejected: FriendManager.rejectRequest(model.requestId)
             }
 
             // Empty state

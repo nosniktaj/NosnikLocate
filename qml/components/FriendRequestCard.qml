@@ -34,7 +34,11 @@ Item {
             AvatarCircle {
                 size: 44
                 imageUrl: root.avatarUrl
-                initials: root.displayName.length > 0 ? root.displayName.charAt(0) : "?"
+                initials: {
+                    if (root.displayName.length > 0) return root.displayName.charAt(0);
+                    if (root.username.length > 0) return root.username.charAt(0);
+                    return "?";
+                }
                 Layout.alignment: Qt.AlignVCenter
             }
 
@@ -44,7 +48,7 @@ Item {
                 spacing: 2
 
                 Text {
-                    text: root.displayName
+                    text: root.displayName.length > 0 ? root.displayName : root.username
                     font.pixelSize: 15
                     font.weight: Font.Medium
                     color: "#FFFFFF"
@@ -53,11 +57,12 @@ Item {
                 }
 
                 Text {
-                    text: "@" + root.username
+                    text: root.username.length > 0 ? "@" + root.username : ""
                     font.pixelSize: 12
                     color: "#B0B0B0"
                     elide: Text.ElideRight
                     Layout.fillWidth: true
+                    visible: root.displayName.length > 0 && root.username.length > 0
                 }
             }
 

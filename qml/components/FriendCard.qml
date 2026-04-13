@@ -30,9 +30,6 @@ Item {
         radius: 14
         color: "#1E1E3A"
 
-        layer.enabled: true
-        layer.effect: Item {}
-
         MouseArea {
             anchors.fill: parent
             onClicked: root.clicked()

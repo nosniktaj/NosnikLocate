@@ -155,6 +155,7 @@ Page {
                 }
 
                 SettingsItem {
+                    Layout.preferredHeight: 64
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 16
@@ -174,8 +175,11 @@ Page {
                             Material.accent: "#BB86FC"
                             Material.foreground: "#FFFFFF"
                             implicitWidth: 100
+                            Layout.alignment: Qt.AlignVCenter
 
                             background: Rectangle {
+                                implicitWidth: 100
+                                implicitHeight: 40
                                 radius: 8
                                 color: "#1E1E3A"
                                 border.width: 1
@@ -194,6 +198,7 @@ Page {
                 SectionHeader { text: "Map" }
 
                 SettingsItem {
+                    Layout.preferredHeight: 64
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 16
@@ -217,9 +222,12 @@ Page {
                             }
                             Material.accent: "#BB86FC"
                             Material.foreground: "#FFFFFF"
-                            implicitWidth: 130
+                            implicitWidth: 140
+                            Layout.alignment: Qt.AlignVCenter
 
                             background: Rectangle {
+                                implicitWidth: 140
+                                implicitHeight: 40
                                 radius: 8
                                 color: "#1E1E3A"
                                 border.width: 1
