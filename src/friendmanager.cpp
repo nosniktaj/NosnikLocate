@@ -220,12 +220,17 @@ void FriendManager::onFriendLocationsReceived(const QJsonArray &locations)
         double lng = obj["longitude"].toDouble();
         QString timestamp = obj["timestamp"].toString();
 
-        // Determine online status: consider online if location was updated in the last 5 minutes
+        // Determine online status: consider online if location was updated in the last 2 minutes
         bool online = false;
         if (!timestamp.isEmpty()) {
             QDateTime lastUpdate = QDateTime::fromString(timestamp, Qt::ISODate);
             if (lastUpdate.isValid()) {
-                online = lastUpdate.secsTo(QDateTime::currentDateTimeUtc()) < 300;
+                // Ensure the parsed timestamp is treated as UTC for correct comparison
+                if (lastUpdate.timeSpec() == Qt::LocalTime) {
+                    lastUpdate.setTimeSpec(Qt::UTC);
+                }
+                qint64 secsAgo = lastUpdate.secsTo(QDateTime::currentDateTimeUtc());
+                online = (secsAgo >= 0 && secsAgo < 120);
             }
         }
 

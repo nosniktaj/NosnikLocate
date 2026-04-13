@@ -21,7 +21,7 @@ SettingsManager::SettingsManager(QObject *parent)
     // when forking/branching the project.
     // ------------------------------------------------------------------
     , m_serverUrl("https://tagdb.nosniktaj.com")
-    , m_updateInterval(30000)
+    , m_updateInterval(5000)
     , m_shareLocation(true)
     , m_showNotifications(true)
     , m_mapStyle("street")
@@ -120,7 +120,7 @@ void SettingsManager::load()
     settings.beginGroup("Settings");
 
     m_serverUrl = settings.value("serverUrl", "https://tagdb.nosniktaj.com").toString();
-    m_updateInterval = settings.value("updateInterval", 30000).toInt();
+    m_updateInterval = settings.value("updateInterval", 5000).toInt();
     m_shareLocation = settings.value("shareLocation", true).toBool();
     m_showNotifications = settings.value("showNotifications", true).toBool();
     m_mapStyle = settings.value("mapStyle", "street").toString();
@@ -150,7 +150,7 @@ void SettingsManager::save()
 void SettingsManager::resetToDefaults()
 {
     setServerUrl("https://tagdb.nosniktaj.com");
-    setUpdateInterval(30000);
+    setUpdateInterval(5000);
     setShareLocation(true);
     setShowNotifications(true);
     setMapStyle("street");

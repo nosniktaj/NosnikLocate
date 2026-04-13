@@ -141,9 +141,9 @@ Page {
                         Slider {
                             id: intervalSlider
                             Layout.fillWidth: true
-                            from: 10000
-                            to: 300000
-                            stepSize: 10000
+                            from: 3000
+                            to: 60000
+                            stepSize: 1000
                             value: SettingsManager.updateInterval
                             Material.accent: "#BB86FC"
                             onMoved: {

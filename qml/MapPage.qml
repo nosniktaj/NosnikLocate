@@ -20,7 +20,8 @@ Page {
         name: "osm"
 
         PluginParameter { name: "osm.useragent"; value: "NosnikLocate/1.0 (https://github.com/nosniktaj/NosnikLocate)" }
-        PluginParameter { name: "osm.mapping.custom.host"; value: "https://tile.openstreetmap.org/" }
+        PluginParameter { name: "osm.mapping.custom.host"; value: "https://tile.openstreetmap.org/%z/%x/%y.png" }
+        PluginParameter { name: "osm.mapping.custom.mapcopyright"; value: "© OpenStreetMap contributors" }
         PluginParameter { name: "osm.mapping.highdpi_tiles"; value: true }
     }
 
@@ -353,15 +354,23 @@ Page {
         }
     }
 
-    // Refresh friend locations periodically
+    // Refresh friend locations periodically using configured interval
     Timer {
-        interval: 30000
+        interval: SettingsManager.updateInterval
         running: true
         repeat: true
         onTriggered: FriendManager.refreshLocations()
     }
 
     Component.onCompleted: {
+        // Select the "Custom" map type so we use our own tile server
+        // instead of the default provider that requires an API key
+        for (var i = 0; i < map.supportedMapTypes.length; ++i) {
+            if (map.supportedMapTypes[i].name.toLowerCase().indexOf("custom") !== -1) {
+                map.activeMapType = map.supportedMapTypes[i];
+                break;
+            }
+        }
         FriendManager.refreshLocations();
     }
 }

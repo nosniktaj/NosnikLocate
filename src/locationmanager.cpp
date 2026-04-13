@@ -29,7 +29,7 @@ LocationManager::LocationManager(QObject *parent)
     , m_longitude(0.0)
     , m_accuracy(0.0)
     , m_isTracking(false)
-    , m_updateInterval(30000)
+    , m_updateInterval(5000)
 {
     m_positionSource = QGeoPositionInfoSource::createDefaultSource(this);
 
