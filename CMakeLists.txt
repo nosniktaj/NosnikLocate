@@ -42,6 +42,7 @@ set(QML_FILES
     qml/Main.qml
     qml/LoginPage.qml
     qml/RegisterPage.qml
+    qml/VerifyEmailPage.qml
     qml/MapPage.qml
     qml/FriendsPage.qml
     qml/NotificationsPage.qml

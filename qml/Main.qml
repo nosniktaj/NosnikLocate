@@ -45,6 +45,26 @@ ApplicationWindow {
         }
     }
 
+    Component {
+        id: verifyEmailComponent
+        VerifyEmailPage {
+            username: root._verifyUsername
+            onVerificationComplete: authLoader.sourceComponent = loginComponent
+            onBackToLogin: authLoader.sourceComponent = loginComponent
+        }
+    }
+
+    // Track the username for email verification
+    property string _verifyUsername: ""
+
+    Connections {
+        target: UserManager
+        function onEmailVerificationRequired(username) {
+            root._verifyUsername = username;
+            authLoader.sourceComponent = verifyEmailComponent;
+        }
+    }
+
     // Main content: visible when logged in
     Item {
         id: mainContent

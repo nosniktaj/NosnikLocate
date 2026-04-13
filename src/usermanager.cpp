@@ -24,6 +24,8 @@ UserManager::UserManager(QObject *parent)
     connect(net, &NetworkManager::profileUpdateResponse, this, &UserManager::onProfileUpdateResponse);
     connect(net, &NetworkManager::passwordChangeResponse, this, &UserManager::onPasswordChangeResponse);
     connect(net, &NetworkManager::accountDeleteResponse, this, &UserManager::onAccountDeleteResponse);
+    connect(net, &NetworkManager::emailVerificationResponse, this, &UserManager::onEmailVerificationResponse);
+    connect(net, &NetworkManager::resendVerificationResponse, this, &UserManager::onResendVerificationResponse);
 
     loadStoredSession();
 }
@@ -94,6 +96,16 @@ void UserManager::changePassword(const QString &oldPassword, const QString &newP
 void UserManager::deleteAccount()
 {
     NetworkManager::instance()->deleteAccountRequest();
+}
+
+void UserManager::verifyEmail(const QString &username, const QString &code)
+{
+    NetworkManager::instance()->verifyEmailRequest(username, code);
+}
+
+void UserManager::resendVerification(const QString &username)
+{
+    NetworkManager::instance()->resendVerificationRequest(username);
 }
 
 void UserManager::setAuthToken(const QString &token)
@@ -177,6 +189,14 @@ void UserManager::onLoginResponse(bool success, const QJsonObject &data)
         QString reason = data["message"].toString();
         if (reason.isEmpty())
             reason = data["error"].toString("Login failed");
+
+        // Check if email verification is required
+        bool verificationRequired = data["email_verification_required"].toBool(false);
+        if (verificationRequired) {
+            QString username = data["username"].toString();
+            emit emailVerificationRequired(username);
+        }
+
         emit loginFailed(reason);
     }
 }
@@ -184,6 +204,12 @@ void UserManager::onLoginResponse(bool success, const QJsonObject &data)
 void UserManager::onRegisterResponse(bool success, const QJsonObject &data)
 {
     if (success) {
+        bool verificationRequired = data["email_verification_required"].toBool(false);
+        if (verificationRequired) {
+            QJsonObject user = data["user"].toObject();
+            QString username = user["username"].toString();
+            emit emailVerificationRequired(username);
+        }
         emit registrationSuccess();
     } else {
         QString reason = data["message"].toString();
@@ -245,4 +271,22 @@ void UserManager::clearStoredSession()
     settings.remove("auth/email");
     settings.remove("auth/avatarUrl");
     settings.sync();
+}
+
+void UserManager::onEmailVerificationResponse(bool success, const QString &message)
+{
+    if (success) {
+        emit emailVerificationSuccess();
+    } else {
+        emit emailVerificationFailed(message);
+    }
+}
+
+void UserManager::onResendVerificationResponse(bool success, const QString &message)
+{
+    if (success) {
+        emit verificationResent();
+    } else {
+        emit verificationResendFailed(message);
+    }
 }

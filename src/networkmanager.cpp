@@ -347,3 +347,38 @@ void NetworkManager::rejectFriendRequest(const QString &requestId)
             emit friendRequestResponse(false, error);
         });
 }
+
+void NetworkManager::verifyEmailRequest(const QString &username, const QString &code)
+{
+    QJsonObject data;
+    data["username"] = username;
+    data["code"] = code;
+
+    QNetworkReply *reply = m_networkManager->post(createRequest("/api/auth/verify-email"),
+                                                  QJsonDocument(data).toJson());
+    handleReply(reply,
+        [this](const QJsonDocument &doc) {
+            QString msg = doc.object()["message"].toString("Email verified successfully");
+            emit emailVerificationResponse(true, msg);
+        },
+        [this](const QString &error) {
+            emit emailVerificationResponse(false, error);
+        });
+}
+
+void NetworkManager::resendVerificationRequest(const QString &username)
+{
+    QJsonObject data;
+    data["username"] = username;
+
+    QNetworkReply *reply = m_networkManager->post(createRequest("/api/auth/resend-verification"),
+                                                  QJsonDocument(data).toJson());
+    handleReply(reply,
+        [this](const QJsonDocument &doc) {
+            QString msg = doc.object()["message"].toString("Verification code sent");
+            emit resendVerificationResponse(true, msg);
+        },
+        [this](const QString &error) {
+            emit resendVerificationResponse(false, error);
+        });
+}

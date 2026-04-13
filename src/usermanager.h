@@ -35,6 +35,8 @@ public:
     Q_INVOKABLE void updateProfile(const QString &displayName, const QString &avatarUrl);
     Q_INVOKABLE void changePassword(const QString &oldPassword, const QString &newPassword);
     Q_INVOKABLE void deleteAccount();
+    Q_INVOKABLE void verifyEmail(const QString &username, const QString &code);
+    Q_INVOKABLE void resendVerification(const QString &username);
 
 signals:
     void isLoggedInChanged();
@@ -45,6 +47,11 @@ signals:
     void loginFailed(const QString &reason);
     void registrationSuccess();
     void registrationFailed(const QString &reason);
+    void emailVerificationRequired(const QString &username);
+    void emailVerificationSuccess();
+    void emailVerificationFailed(const QString &reason);
+    void verificationResent();
+    void verificationResendFailed(const QString &reason);
     void profileUpdated();
     void passwordChanged();
     void passwordChangeFailed(const QString &reason);
@@ -57,6 +64,8 @@ private slots:
     void onProfileUpdateResponse(bool success, const QJsonObject &data);
     void onPasswordChangeResponse(bool success, const QString &message);
     void onAccountDeleteResponse(bool success, const QString &message);
+    void onEmailVerificationResponse(bool success, const QString &message);
+    void onResendVerificationResponse(bool success, const QString &message);
 
 private:
     explicit UserManager(QObject *parent = nullptr);

@@ -10,6 +10,7 @@ const { body, param, validationResult } = require('express-validator');
 
 const pool = require('./db/pool');
 const authenticate = require('./middleware/auth');
+const { generateVerificationCode, sendVerificationEmail } = require('./email');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -89,11 +90,25 @@ app.post(
       const { username, email, password, display_name } = req.body;
       const passwordHash = await bcrypt.hash(password, 12);
 
+      const verificationEnabled = process.env.EMAIL_VERIFICATION_ENABLED === 'true';
+      const verificationCode = verificationEnabled ? generateVerificationCode() : null;
+      const verificationExpires = verificationEnabled
+        ? new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
+        : null;
+
       const result = await pool.query(
-        `INSERT INTO users (username, email, password_hash, display_name)
-         VALUES ($1, $2, $3, $4)
-         RETURNING id, username, email, display_name, created_at`,
-        [username, email, passwordHash, display_name || null]
+        `INSERT INTO users (username, email, password_hash, display_name, email_verified, verification_code, verification_expires)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, username, email, display_name, email_verified, created_at`,
+        [
+          username,
+          email,
+          passwordHash,
+          display_name || null,
+          !verificationEnabled,
+          verificationCode,
+          verificationExpires,
+        ]
       );
 
       const user = result.rows[0];
@@ -104,17 +119,31 @@ app.post(
         [user.id]
       );
 
+      // Send verification email if enabled
+      if (verificationEnabled) {
+        try {
+          await sendVerificationEmail(email, verificationCode);
+        } catch (emailErr) {
+          console.error('Failed to send verification email:', emailErr);
+          // Don't fail registration if email sending fails – user can resend
+        }
+      }
+
       const token = generateToken(user);
 
       res.status(201).json({
-        message: 'User registered successfully',
+        message: verificationEnabled
+          ? 'User registered successfully. Please check your email for a verification code.'
+          : 'User registered successfully',
         user: {
           id: user.id,
           username: user.username,
           email: user.email,
           display_name: user.display_name,
+          email_verified: user.email_verified,
         },
         token,
+        email_verification_required: verificationEnabled,
       });
     } catch (err) {
       if (err.code === '23505') {
@@ -140,7 +169,7 @@ app.post(
       const { username, password } = req.body;
 
       const result = await pool.query(
-        `SELECT id, username, email, password_hash, display_name, is_active
+        `SELECT id, username, email, password_hash, display_name, is_active, email_verified
          FROM users WHERE username = $1`,
         [username]
       );
@@ -158,6 +187,16 @@ app.post(
       const valid = await bcrypt.compare(password, user.password_hash);
       if (!valid) {
         return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      // Check email verification if enabled
+      const verificationEnabled = process.env.EMAIL_VERIFICATION_ENABLED === 'true';
+      if (verificationEnabled && !user.email_verified) {
+        return res.status(403).json({
+          error: 'Email not verified. Please check your email for the verification code.',
+          email_verification_required: true,
+          username: user.username,
+        });
       }
 
       await pool.query(
@@ -191,6 +230,110 @@ app.post('/api/auth/logout', authenticate, (_req, res) => {
   // invalidation if required.
   res.json({ message: 'Logged out successfully' });
 });
+
+// POST /api/auth/verify-email
+app.post(
+  '/api/auth/verify-email',
+  authLimiter,
+  [
+    body('username').trim().notEmpty(),
+    body('code').trim().isLength({ min: 6, max: 6 }).withMessage('Verification code must be 6 digits'),
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const { username, code } = req.body;
+
+      const result = await pool.query(
+        `SELECT id, verification_code, verification_expires, email_verified
+         FROM users WHERE username = $1`,
+        [username]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const user = result.rows[0];
+
+      if (user.email_verified) {
+        return res.json({ message: 'Email already verified' });
+      }
+
+      if (!user.verification_code) {
+        return res.status(400).json({ error: 'No verification code found. Please request a new one.' });
+      }
+
+      if (new Date() > new Date(user.verification_expires)) {
+        return res.status(400).json({ error: 'Verification code has expired. Please request a new one.' });
+      }
+
+      if (user.verification_code !== code) {
+        return res.status(400).json({ error: 'Invalid verification code' });
+      }
+
+      await pool.query(
+        `UPDATE users
+         SET email_verified = TRUE, verification_code = NULL, verification_expires = NULL, updated_at = NOW()
+         WHERE id = $1`,
+        [user.id]
+      );
+
+      res.json({ message: 'Email verified successfully' });
+    } catch (err) {
+      console.error('Email verification error:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+// POST /api/auth/resend-verification
+app.post(
+  '/api/auth/resend-verification',
+  authLimiter,
+  [body('username').trim().notEmpty()],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const { username } = req.body;
+
+      const result = await pool.query(
+        `SELECT id, email, email_verified FROM users WHERE username = $1`,
+        [username]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const user = result.rows[0];
+
+      if (user.email_verified) {
+        return res.json({ message: 'Email already verified' });
+      }
+
+      const code = generateVerificationCode();
+      const expires = new Date(Date.now() + 15 * 60 * 1000);
+
+      await pool.query(
+        `UPDATE users SET verification_code = $1, verification_expires = $2, updated_at = NOW() WHERE id = $3`,
+        [code, expires, user.id]
+      );
+
+      try {
+        await sendVerificationEmail(user.email, code);
+      } catch (emailErr) {
+        console.error('Failed to resend verification email:', emailErr);
+        return res.status(500).json({ error: 'Failed to send verification email. Please try again later.' });
+      }
+
+      res.json({ message: 'Verification code sent. Please check your email.' });
+    } catch (err) {
+      console.error('Resend verification error:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
 
 // ===========================================================================
 // USER ROUTES

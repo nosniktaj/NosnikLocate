@@ -49,6 +49,9 @@ public:
     Q_INVOKABLE void acceptFriendRequest(const QString &requestId);
     Q_INVOKABLE void rejectFriendRequest(const QString &requestId);
 
+    Q_INVOKABLE void verifyEmailRequest(const QString &username, const QString &code);
+    Q_INVOKABLE void resendVerificationRequest(const QString &username);
+
 signals:
     void serverUrlChanged();
     void isConnectedChanged();
@@ -69,6 +72,9 @@ signals:
     void friendAddResponse(bool success, const QString &message);
     void friendRemoveResponse(bool success, const QString &message);
     void friendRequestResponse(bool success, const QString &message);
+
+    void emailVerificationResponse(bool success, const QString &message);
+    void resendVerificationResponse(bool success, const QString &message);
 
 private:
     explicit NetworkManager(QObject *parent = nullptr);
