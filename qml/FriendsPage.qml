@@ -12,6 +12,9 @@ Page {
 
     property string searchQuery: ""
 
+    // Emitted when the user taps a friend card and wants to see them on the map
+    signal viewOnMap(double latitude, double longitude)
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -121,6 +124,8 @@ Page {
                 required property bool isOnline
                 required property var lastSeen
                 required property double distance
+                required property double latitude
+                required property double longitude
 
                 visible: {
                     if (friendsPage.searchQuery === "") return true;
@@ -171,6 +176,13 @@ Page {
                         lastSeen: parent.parent.lastSeen ? Qt.formatDateTime(parent.parent.lastSeen, "hh:mm AP") : ""
                         distance: parent.parent.distance
                         distanceUnit: SettingsManager.distanceUnit
+                        onClicked: {
+                            var lat = parent.parent.latitude
+                            var lng = parent.parent.longitude
+                            if (lat !== 0 || lng !== 0) {
+                                friendsPage.viewOnMap(lat, lng)
+                            }
+                        }
                     }
 
                     swipe.right: Item {

@@ -80,8 +80,9 @@ Item {
         }
     }
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: root.tapped()
+    // TapHandler instead of MouseArea so drag events propagate to the
+    // map's gesture area and map panning is not blocked.
+    TapHandler {
+        onTapped: root.tapped()
     }
 }

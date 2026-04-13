@@ -66,12 +66,12 @@ void FriendModel::setFriends(const QVector<Friend> &friends)
     emit countChanged();
 }
 
-void FriendModel::updateFriendLocation(const QString &friendId, double latitude,
+bool FriendModel::updateFriendLocation(const QString &friendId, double latitude,
                                        double longitude, bool isOnline, double distance)
 {
     int idx = findFriendIndex(friendId);
     if (idx < 0)
-        return;
+        return false;
 
     m_friends[idx].latitude = latitude;
     m_friends[idx].longitude = longitude;
@@ -82,6 +82,7 @@ void FriendModel::updateFriendLocation(const QString &friendId, double latitude,
     QModelIndex modelIndex = index(idx);
     emit dataChanged(modelIndex, modelIndex,
                      {LatitudeRole, LongitudeRole, IsOnlineRole, DistanceRole, LastSeenRole});
+    return true;
 }
 
 void FriendModel::addFriend(const Friend &friendData)

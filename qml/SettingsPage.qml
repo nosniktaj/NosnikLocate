@@ -149,6 +149,7 @@ Page {
                             onMoved: {
                                 SettingsManager.updateInterval = value;
                                 SettingsManager.save();
+                                LocationManager.setUpdateInterval(value);
                             }
                         }
                     }

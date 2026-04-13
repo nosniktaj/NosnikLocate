@@ -3,6 +3,7 @@
 
 #include <QGeoPositionInfo>
 #include <QGeoCoordinate>
+#include <QSettings>
 #include <QDebug>
 
 #ifdef Q_OS_ANDROID
@@ -31,6 +32,12 @@ LocationManager::LocationManager(QObject *parent)
     , m_isTracking(false)
     , m_updateInterval(5000)
 {
+    // Load the interval the user previously configured (same QSettings key as SettingsManager)
+    QSettings settings;
+    settings.beginGroup("Settings");
+    m_updateInterval = settings.value("updateInterval", 5000).toInt();
+    settings.endGroup();
+
     m_positionSource = QGeoPositionInfoSource::createDefaultSource(this);
 
     if (m_positionSource) {
@@ -99,6 +106,10 @@ void LocationManager::startTracking()
     m_positionSource->startUpdates();
     m_sendTimer->start(m_updateInterval);
     m_isTracking = true;
+
+    QSettings settings;
+    settings.setValue("location/trackingEnabled", true);
+
     emit trackingStateChanged(m_isTracking);
 }
 
@@ -112,7 +123,19 @@ void LocationManager::stopTracking()
     }
     m_sendTimer->stop();
     m_isTracking = false;
+
+    QSettings settings;
+    settings.setValue("location/trackingEnabled", false);
+
     emit trackingStateChanged(m_isTracking);
+}
+
+void LocationManager::resumeTracking()
+{
+    QSettings settings;
+    if (settings.value("location/trackingEnabled", false).toBool()) {
+        startTracking();
+    }
 }
 
 void LocationManager::updateLocation()

@@ -15,6 +15,11 @@ Page {
     property bool showFriendPopup: false
     property var selectedFriend: null
 
+    // Called from Main.qml to jump the map view to a specific coordinate
+    function centerOnCoordinate(lat, lng) {
+        map.center = QtPositioning.coordinate(lat, lng);
+    }
+
     Plugin {
         id: osmPlugin
         name: "osm"
@@ -130,6 +135,7 @@ Page {
                     isOnline: parent.isOnline
 
                     onTapped: {
+                        map.center = QtPositioning.coordinate(latitude, longitude)
                         mapPage.selectedFriend = {
                             "friendId": parent.friendId,
                             "displayName": parent.displayName,

@@ -185,6 +185,9 @@ void FriendManager::onFriendsListReceived(const QJsonArray &friends)
     }
 
     m_friendModel->setFriends(friendList);
+
+    // Re-populate location data immediately after the model is reset
+    NetworkManager::instance()->fetchFriendLocations();
 }
 
 void FriendManager::onPendingRequestsReceived(const QJsonArray &requests)
@@ -234,7 +237,20 @@ void FriendManager::onFriendLocationsReceived(const QJsonArray &locations)
             }
         }
 
-        m_friendModel->updateFriendLocation(friendId, lat, lng, online, 0.0);
+        // Try to update existing entry; if not found, add from the richer location payload
+        // so the map shows markers even before the friends list has loaded.
+        if (!m_friendModel->updateFriendLocation(friendId, lat, lng, online, 0.0)) {
+            Friend f;
+            f.id = friendId;
+            f.username = obj["username"].toString();
+            QString display = obj["display_name"].toString();
+            f.displayName = display.isEmpty() ? f.username : display;
+            f.avatarUrl = obj["avatar_url"].toString();
+            f.latitude = lat;
+            f.longitude = lng;
+            f.isOnline = online;
+            m_friendModel->addFriend(f);
+        }
     }
 }
 

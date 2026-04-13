@@ -45,7 +45,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setFriends(const QVector<Friend> &friends);
-    void updateFriendLocation(const QString &friendId, double latitude, double longitude,
+    bool updateFriendLocation(const QString &friendId, double latitude, double longitude,
                               bool isOnline, double distance);
     void addFriend(const Friend &friendData);
     void removeFriend(const QString &friendId);

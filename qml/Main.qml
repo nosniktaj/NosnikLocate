@@ -63,6 +63,12 @@ ApplicationWindow {
             root._verifyUsername = username;
             authLoader.sourceComponent = verifyEmailComponent;
         }
+        // Called on explicit login — load data and resume tracking
+        function onLoginSuccess() {
+            FriendManager.loadFriends();
+            FriendManager.refreshLocations();
+            LocationManager.resumeTracking();
+        }
     }
 
     // Main content: visible when logged in
@@ -81,8 +87,14 @@ ApplicationWindow {
             anchors.bottom: tabBar.top
             currentIndex: tabBar.currentIndex
 
-            MapPage {}
-            FriendsPage {}
+            MapPage { id: mainMapPage }
+            FriendsPage {
+                id: mainFriendsPage
+                onViewOnMap: function(latitude, longitude) {
+                    tabBar.currentIndex = 0
+                    mainMapPage.centerOnCoordinate(latitude, longitude)
+                }
+            }
             NotificationsPage {}
             SettingsPage {}
         }
@@ -243,11 +255,16 @@ ApplicationWindow {
         }
     }
 
-    // Reset auth view when user logs out
+    // Restore data when the app launches with a stored session or after logout
     Connections {
         target: UserManager
         function onIsLoggedInChanged() {
-            if (!UserManager.isLoggedIn) {
+            if (UserManager.isLoggedIn) {
+                // Stored session: token already set, load data immediately
+                FriendManager.loadFriends();
+                FriendManager.refreshLocations();
+                LocationManager.resumeTracking();
+            } else {
                 authLoader.sourceComponent = loginComponent;
             }
         }

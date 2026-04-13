@@ -30,6 +30,7 @@ public:
 
     Q_INVOKABLE void startTracking();
     Q_INVOKABLE void stopTracking();
+    Q_INVOKABLE void resumeTracking();
     Q_INVOKABLE void updateLocation();
     Q_INVOKABLE void requestPermissions();
 
